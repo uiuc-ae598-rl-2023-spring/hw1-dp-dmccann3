@@ -3,6 +3,7 @@ import numpy as np
 
 class TD(object):
 
+
     def __init__(self, env):
         self.env = env
         self.V = np.array(env.num_states)

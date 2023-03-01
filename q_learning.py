@@ -1,6 +1,7 @@
 import numpy as np
 
 class Q_learning(object):
+    
 
     def __init__(self, env):
         self.env = env

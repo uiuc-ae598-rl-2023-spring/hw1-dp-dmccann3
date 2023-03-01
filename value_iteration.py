@@ -3,6 +3,7 @@ import numpy as np
 
 class VI(object):
 
+
     def __init__(self):
 
         # grid of states 

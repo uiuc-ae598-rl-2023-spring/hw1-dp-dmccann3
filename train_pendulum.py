@@ -4,6 +4,8 @@ from TD_0 import TD
 from discrete_pendulum import Pendulum
 
 def main():
+    
+    
     # Init discrete pendulum
     pendulum = Pendulum()
 
