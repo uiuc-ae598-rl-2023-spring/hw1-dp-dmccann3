@@ -7,6 +7,7 @@ from gridworld import GridWorld
 
 
 def main():
+    
     # Init GridWorld
     gridworld = GridWorld()
 
