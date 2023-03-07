@@ -20,6 +20,7 @@ class PI(object):
 
         # init state values and policy
         self.V = [0 for s in self.states]
+        self.V_prev = [0 for s in self.states]
         self.pi = [0 for s in self.states]
 
         # discount factor
@@ -28,55 +29,78 @@ class PI(object):
         # init env
         self.gridworld = GridWorld(False)
 
+        # for plotting 
+        self.V_mean = []
+        self.num_eval = []
+        self.count_eval = 0
+
     # need to get transition function and rewards into this function here
     def evaluate(self):
         max_iter = 10000
+        self.count_eval += 1
         # Policy Evaluation
         for k in range(max_iter): # FIXME Most likely need to change this to reflect inifite time horizon
-            theta = 5 # FIXME will need to change this most likely
-            delta = theta + 1 # init delta greater than theta here to allow while loop to run
-            while delta > theta:
-                delta = 0
-                for s in self.states:
-                    v = self.V[s]
-                    self.gridworld.s = s
-                    s1, r1, _ = self.gridworld.step(self.pi[s])                    
-                    p = self.gridworld.p(s1, s, self.pi[s])
-                    self.V[s] += p * (r1 + self.gamma*self.V[s1])
-                    delta = max(delta, abs(v - self.V[s]))
+            for s in self.states:
+                v = self.V[s]
+                self.gridworld.s = s
+                s1, r1, _ = self.gridworld.step(self.pi[s])                    
+                p = self.gridworld.p(s1, s, self.pi[s])
+                self.V[s] = np.sum(p * (r1 + self.gamma*self.V[s1]))
+
+            if np.allclose(self.V_prev, self.V, rtol=0, atol=1e-20):
+                break
+            else:
+                self.V_prev = self.V
+
+        # calculate and store mean value function
+        mean = (1/25) * sum(self.V)
+        self.V_mean.append(mean)
+        self.num_eval.append(self.count_eval)
 
         return self.V
     
     def improve(self):
         V = [0 for a in self.actions]
+        pi = [0 for s in self.states]
         # Policy Improvement
         for s in self.states:
-            self.gridworld.s = s
             for a in self.actions:
+                self.gridworld.s = s
                 s1, r1, _ = self.gridworld.step(a)
                 p = self.gridworld.p(s1, s, a)
-                V[a] += p * (r1 + self.gamma*self.V[s1]) # FIXME may need to change this to include some sort of argmax
-            self.pi[s] = np.argmax(V)
+                V[a] = r1 + self.gamma*np.sum(p * self.V[s1]) # FIXME may need to change this to include some sort of argmax
+            pi[s] = np.argmax(V)
+        self.pi = pi
 
     def train(self):
         for j in range(100):
-            self.evaluate()
+            v = self.evaluate()
             self.improve()
 
         return self.pi
     
     def run(self):
+        S = []
+        A = []
+        R = []
         pi = self.train()
         s = self.gridworld.reset()
+        S.append(s)
+        A.append(0)
+        R.append(0)
         done = False
         step = 0
         while not done:
             self.gridworld.render()
-            (s, r, done) = self.gridworld.step(pi[s])
+            A.append(pi[s])
+            s, r, done = self.gridworld.step(pi[s])
+            S.append(s)
+            R.append(r)
             if done:
                 s = self.gridworld.reset()
             else:
                 step += 1
+        return S, A, R
 
     
             

@@ -21,7 +21,7 @@ class GridWorld():
     If you specify hard_version=True, then the action will be selected uniformly at random 10% of the time.
     """
 
-    def __init__(self, hard_version=False):
+    def __init__(self, hard_version=True):
         self.hard_version = hard_version
         self.num_states = 25
         self.num_actions = 4

@@ -6,7 +6,7 @@ class TD(object):
 
     def __init__(self, env):
         self.env = env
-        self.V = np.array(env.num_states)
+        self.V = np.zeros(env.num_states)
         self.gamma = 0.95
 
     def estimate(self, pi, alpha, episode):
@@ -14,7 +14,7 @@ class TD(object):
         for i in range(episode):
             a = int(pi[s])
             s1, r1, done = self.env.step(a)
-            self.V[s] = self.V[s] + alpha * (r1 + (self.gamma*self.V[s1] - self.V[s]))
+            self.V[s] = self.V[s] + alpha * (r1 + self.gamma*(self.V[s1] - self.V[s]))
             if done:
                 s = self.env.reset()
             else:
